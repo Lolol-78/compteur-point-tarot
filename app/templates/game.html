@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% import "jinja_macros.html" as jm %}
+{% import "game_graphics.html" as gg %}
+
+{% block content %}
+    <h1>{{ game.game_name }}</h1>
+    <h4>Joueurs</h4>
+    <p>
+        {{ jm.game_edit_players(game, players) }}
+    </p>
+    <hr>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" hx-get="{{ url_for('game_get_graphics', game_id=game.id) }}" hx-trigger="click" hx-target="#htmx-graphics" hx-swap="outerHTML">
+        Voir les graphiques
+    </button>
+    <br>
+    <br>
+    {% for deal in deals %}
+    {{ jm.game_edit_deal(game, deal, announcement=announcement, players=players, annonces=annonces[loop.index0], annonces_label=annonces_label) }}
+    <br>
+    {% endfor %}
+    <div hx-target="this" hx-swap="outerHTML">
+        <button hx-get="{{ url_for('game_new_deal', game_id=game.id) }}" class="btn border-primary text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+            </svg>
+            Ajouter une donne
+        </button>
+    </div>
+    <hr>
+    
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ gg.graphic(line_chart_datasets, called_pie_chart_dataset, dealer_pie_chart_dataset, win_bar_chart_dataset, annonce_bar_chart_dataset) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

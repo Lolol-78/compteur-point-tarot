@@ -1,0 +1,7 @@
+{% import "jinja_macros.html" as jm %}
+
+{% if form %}
+{{ jm.game_edit_deal(game, deal, form, announcement=announcement) }}
+{% else %}
+{{ jm.game_edit_deal(game, deal, announcement=announcement, players=players, annonces_label=annonces_label, annonces=annonces) }}
+{% endif %}

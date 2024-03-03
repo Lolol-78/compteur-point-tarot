@@ -1,0 +1,265 @@
+{% macro graphic(line_chart_datasets, called_pie_chart_dataset, dealer_pie_chart_dataset, win_bar_chart_dataset, annonce_bar_chart_dataset) %}
+<div id="htmx-graphics">
+
+    <div>
+        <canvas id="lineChart"></canvas>
+        <div class="d-flex flex-row justify-content-center p-2">
+            <div style="width: 40%;" class="p-2">
+                <canvas id="dealerPieChart"></canvas>
+            </div>
+            <div style="width: 40%;" class="p-2">
+                <canvas id="calledPieChart"></canvas>
+            </div>
+        </div>
+        <div class="d-flex flex-row justify-content-center p-2">
+            <div class="p-2" style="width: 50%;">
+                <canvas id="winBarChart"></canvas>
+            </div>
+            <div class="p-2" style="width: 50%;">
+                <canvas id="annonceBarChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+
+    <script>;
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            plugins: [ChartDataLabels],
+            data: {
+                labels : {{ line_chart_datasets[1] }},
+                datasets : {{ line_chart_datasets[0] | tojson }}},
+            options: {
+                animation: false,
+                interaction: false,
+                elements: {
+                    line: {
+                        tension: 0.3,
+                        borderWidth: 20
+                    },
+                    point: {
+                        radius: 0,
+                        hitRadius: 0
+                    }
+                },
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: "left",
+                        title: {
+                            display: true,
+                            text: "Scores",
+                            font: {
+                                size: 35
+                            }
+                        },
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 35
+                            },
+                            usePointStyle: true
+                        }
+                    },
+                    datalabels: {
+                        textStrokeColor: "#ffffff",
+                        textStrokeWidth: 3,
+                        font: {
+                            size: 20,
+                            weight: "bold"
+                        },
+                        clamp: true
+                    }
+                },
+                layout: {
+                    padding: {
+                        right: 30
+                    }
+                }
+            },
+        });
+
+        var pieChartDataLabels = {
+            font: {
+                size: 40,
+                weight: "bold"
+            },
+            color: "#ffffff",
+            textStrokeColor: "#000000",
+            textStrokeWidth: 1,
+        };
+
+        var barChartDataLabels = {
+            font: {
+                size: 30,
+                weight: "bold"
+            },
+            color: "#ffffff",
+            textStrokeColor: "#000000",
+            textStrokeWidth: 1,
+        };
+
+        new Chart(document.getElementById("calledPieChart"), {
+            type: "pie",
+            plugins: [ChartDataLabels],
+            radius: "10%",
+            text: "Le plus appelé",
+            data: {
+                labels: {{ called_pie_chart_dataset[1] | tojson }},
+                datasets: {{ called_pie_chart_dataset[0] | tojson }},
+            },
+            options: {
+                animation: false,
+                interaction: false,
+                plugins: {
+                    legend: {
+                        title: {
+                            text: "Qui a été le plus appelé",
+                            display: true,
+                            font: {
+                                size: 35
+                            },
+                        },
+                        labels: {
+                            font: {
+                                size: 30
+                            }
+                        }
+                    },
+                    datalabels: pieChartDataLabels,
+                }
+            }
+        });
+
+        new Chart(document.getElementById("dealerPieChart"), {
+            type: "pie",
+            plugins: [ChartDataLabels],
+            radius: "10%",
+            text: "Le plus appelé",
+            data: {
+                labels: {{ dealer_pie_chart_dataset[1] | tojson }},
+                datasets: {{ dealer_pie_chart_dataset[0] | tojson }},
+            },
+            options: {
+                animation: false,
+                interaction: false,
+                plugins: {
+                    legend: {
+                        title: {
+                            text: "Qui y est le plus allé",
+                            display: true,
+                            font: {
+                                size: 35
+                            }
+                        },
+                        labels: {
+                            font: {
+                                size: 30
+                            }
+                        }
+                    },
+                    datalabels: pieChartDataLabels,
+                }
+            }
+        });
+
+        new Chart(document.getElementById("winBarChart"), {
+            type: "bar",
+            plugins: [ChartDataLabels],
+            data: {
+                labels: {{ win_bar_chart_dataset[1] | tojson }},
+                datasets: {{ win_bar_chart_dataset[0] | tojson }},
+            },
+            options: {
+                indexAxis: 'y',
+                animation: false,
+                interaction: false,
+                plugins: {
+                    datalabels: barChartDataLabels,
+                    legend: {
+                        title: {
+                            display: false,
+                        },
+                        labels: {
+                            font: {
+                                size: 25
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        ticks: {
+                            font: {
+                                size: 25,
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById("annonceBarChart"), {
+            type: "bar",
+            plugins: [ChartDataLabels],
+            data: {
+                labels: {{ annonce_bar_chart_dataset[1] | tojson }},
+                datasets: {{ annonce_bar_chart_dataset[0] | tojson }},
+            },
+            options: {
+                animation: false,
+                interaction: false,
+                plugins: {
+                    datalabels: {
+                        font: {
+                            size: 30,
+                            weight: "bold"
+                        },
+                        color: "#ffffff",
+                        textStrokeColor: "#000000",
+                        textStrokeWidth: 1,
+                        formatter: function(value, context) {
+                            return value["y"]
+                        }
+                    },
+                    legend: {
+                        title: {
+                            display: false,
+                        },
+                        labels: {
+                            font: {
+                                size: 25
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: {
+                            display: true,
+                            font: {
+                                size: 25,
+                            }
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        display: false
+                    }
+                }
+            }
+        })
+    </script>
+</div>
+{% endmacro %}

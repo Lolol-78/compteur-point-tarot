@@ -1,0 +1,2 @@
+colorpicker
+flask_colorpicker
