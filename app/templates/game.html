@@ -4,32 +4,54 @@
 
 {% block content %}
     <h1>{{ game.game_name }}</h1>
-    <h4>Joueurs</h4>
-    <p>
-        {{ jm.game_edit_players(game, players) }}
-    </p>
-    <hr>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" hx-get="{{ url_for('game_get_graphics', game_id=game.id) }}" hx-trigger="click" hx-target="#htmx-graphics" hx-swap="outerHTML">
-        Voir les graphiques
-    </button>
-    <br>
-    <br>
-    {% for deal in deals %}
-    {{ jm.game_edit_deal(game, deal, announcement=announcement, players=players, annonces=annonces[loop.index0], annonces_label=annonces_label) }}
-    <br>
-    {% endfor %}
-    <div hx-target="this" hx-swap="outerHTML">
-        <button hx-get="{{ url_for('game_new_deal', game_id=game.id) }}" class="btn border-primary text-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
-            </svg>
-            Ajouter une donne
-        </button>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="players-tab" data-bs-toggle="tab" data-bs-target="#players-tab-pane" type="button" role="tab" aria-controls="players-tab-pane" aria-selected="true">Joueurs & Options</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="points-tab" data-bs-toggle="tab" data-bs-target="#points-tab-pane" type="button" role="tab" aria-controls="points-tab-pane" aria-selected="false">Points</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="stats-tab" data-bs-toggle="modal" data-bs-target="#stats-tab-modal" type="button" role="tab" aria-controls="stats-tab-modal" aria-selected="false" hx-get="{{ url_for('game_get_graphics', game_id=game.id) }}" hx-trigger="click" hx-target="#htmx-graphics" hx-swap="outerHTML">Statistiques</button>
+        </li>
+    </ul>    
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="players-tab-pane" role="tabpanel" aria-labelledby="players-tab">
+            <br>
+            <h4>Joueurs</h4>
+            <p>
+                {{ jm.game_edit_players(game, players) }}
+            </p>
+            <br>
+            <h4>Options</h4>
+            <br>
+            <button class="btn border-danger text-danger" type="button" data-bs-toggle="modal" data-bs-target="#confirm-delete-modal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                </svg>
+                Supprimer la partie
+            </button>
+        </div>
+        <div class="tab-pane fade" id="points-tab-pane" role="tabpanel" aria-labelledby="points-tab">
+            <br>
+            {% for deal in deals %}
+            {{ jm.game_edit_deal(game, deal, announcement=announcement, players=players, annonces=annonces[loop.index0], annonces_label=annonces_label) }}
+            <br>
+            {% endfor %}
+            <div hx-target="this" hx-swap="outerHTML">
+                <button hx-get="{{ url_for('game_new_deal', game_id=game.id) }}" class="btn border-primary text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                    </svg>
+                    Ajouter une donne
+                </button>
+            </div>
+        </div>
     </div>
-    <hr>
     
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="stats-tab-modal" tabindex="-1" aria-labelledby="stats-tab" aria-hidden="true">
         <div class="modal-dialog modal-fullscreen">
             <div class="modal-content">
                 <div class="modal-header">
@@ -41,4 +63,27 @@
             </div>
         </div>
     </div>
+
+    <!-- Button trigger modal -->
+    
+  
+    <!-- Modal -->
+    <div class="modal fade" id="confirm-delete-modal" tabindex="-1" aria-labelledby="confirm-delete-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="confirm-delete-modal-label">Alerte</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Voulez-vous vraiment supprimer cette partie ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <a type="button" class="btn btn-danger" href="{{ url_for('game_delete', game_id=game.id) }}">Continuer</a>
+                </div>
+            </div>
+        </div>
+    </div>
+  
 {% endblock %}

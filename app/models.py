@@ -20,9 +20,10 @@ class TarotGame(db.Model):
     
     players: so.WriteOnlyMapped['Player'] = so.relationship(
         secondary=players_many_to_many,
-        back_populates='games')
+        back_populates='games',
+        passive_deletes=True)
     
-    deals: so.WriteOnlyMapped['Deal'] = so.relationship(back_populates="game")
+    deals: so.WriteOnlyMapped['Deal'] = so.relationship(back_populates="game", passive_deletes=True, cascade="all, delete, delete-orphan")
     
     creation_date: so.Mapped[Optional[datetime]] = so.mapped_column(sa.DateTime(), default=lambda: datetime.now(timezone.utc))
     last_accessed: so.Mapped[Optional[datetime]] = so.mapped_column(sa.DateTime(), default=lambda: datetime.now(timezone.utc))
@@ -62,7 +63,7 @@ class Deal(db.Model):
     
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     
-    game_id: so.Mapped[int] = so.mapped_column(sa.Integer, sa.ForeignKey(TarotGame.id, name="fk_game_tarot_game"), index=True)
+    game_id: so.Mapped[int] = so.mapped_column(sa.Integer, sa.ForeignKey(TarotGame.id, name="fk_game_tarot_game", ondelete="CASCADE"), index=True)
     game: so.Mapped[TarotGame] = so.relationship(back_populates="deals")
     
     dealer_id: so.Mapped[Optional[int]] = so.mapped_column(sa.ForeignKey(Player.id, name="fk_dealer_player"), index=True)

@@ -1,4 +1,6 @@
 /.vscode
 /__pycache__
 /app/__pycache__
+/migrations/__pycache__
 .gitignore
+app.db

@@ -1,8 +1,10 @@
 {% macro graphic(line_chart_datasets, called_pie_chart_dataset, dealer_pie_chart_dataset, win_bar_chart_dataset, annonce_bar_chart_dataset) %}
 <div id="htmx-graphics">
 
-    <div>
-        <canvas id="lineChart"></canvas>
+    <div class="d-flex flex-column p-2">
+        <div class="d-flex flex-row justify-content-center p-2">
+            <canvas id="lineChart"></canvas>
+        </div>
         <div class="d-flex flex-row justify-content-center p-2">
             <div style="width: 40%;" class="p-2">
                 <canvas id="dealerPieChart"></canvas>

@@ -13,7 +13,7 @@ ANNOUNCEMENT = ["...", "petite", "garde", "garde-sans", "garde-contre"]
 
 @app.route('/index')
 def index():
-    return render_template(redirect(url_for('games')))
+    return redirect(url_for('games'))
 
 @app.route('/')
 def home():
@@ -47,8 +47,8 @@ def new_tarot_game():
         tarot_game.players.add(db.session.scalar(sa.select(Player).where(Player.username == form.player_5.data)))
         d=Deal()
         d.game = tarot_game
-        db.session.add(d)
         db.session.add(tarot_game)
+        db.session.add(d)
         db.session.commit()
         flash(f"La partie {name} a été créé!")
         return redirect(url_for("game", game_id=tarot_game.id))
@@ -353,3 +353,26 @@ def game_get_graphics(game_id):
     win_bar_chart_dataset = get_win_bar_chart_dataset(deals, players, annonces)
     annonce_bar_chart_dataset = get_annonce_bar_chart_dataset(deals, players, annonces)
     return render_template("game_get_graphics.html", line_chart_datasets=line_chart_datasets, called_pie_chart_dataset=called_pie_chart_dataset, dealer_pie_chart_dataset=dealer_pie_chart_dataset, win_bar_chart_dataset=win_bar_chart_dataset, annonce_bar_chart_dataset=annonce_bar_chart_dataset)
+
+@app.route('/game/<int:game_id>/delete')
+def game_delete(game_id: int):
+    game = db.session.get(TarotGame, game_id)
+    if game is None:
+        flash("La partie n'existe pas")
+        return redirect(url_for("game", game_id=game_id))
+    
+    """
+    for player in db.session.scalars(game.players.select()).all():
+        print(f"Removed player {player.id}")
+        game.remove_player(player)
+    """
+    
+    print(f"Nombre de donne: {len(db.session.scalars(sa.select(Deal)).all())}")
+    
+    print(f"Removed game {game.id}")
+    
+    print(f"Nombre de donne: {len(db.session.scalars(sa.select(Deal)).all())}")
+    
+    db.session.delete(game)
+    db.session.commit()
+    return redirect(url_for("games"))

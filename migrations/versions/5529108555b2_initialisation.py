@@ -1,8 +1,8 @@
 """initialisation
 
-Revision ID: 5a1319062366
+Revision ID: 5529108555b2
 Revises: 
-Create Date: 2024-03-03 19:10:33.045394
+Create Date: 2024-03-08 18:35:59.734562
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5a1319062366'
+revision = '5529108555b2'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -49,7 +49,7 @@ def upgrade():
     sa.Column('created', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['called_id'], ['player.id'], name='fk_called_player'),
     sa.ForeignKeyConstraint(['dealer_id'], ['player.id'], name='fk_dealer_player'),
-    sa.ForeignKeyConstraint(['game_id'], ['tarot_game.id'], name='fk_game_tarot_game'),
+    sa.ForeignKeyConstraint(['game_id'], ['tarot_game.id'], name='fk_game_tarot_game', ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('deal', schema=None) as batch_op:
