@@ -3,4 +3,3 @@
 /app/__pycache__
 /migrations/__pycache__
 .gitignore
-app.db

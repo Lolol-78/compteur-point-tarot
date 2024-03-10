@@ -46,7 +46,7 @@ def new_tarot_game():
         tarot_game.players.add(db.session.scalar(sa.select(Player).where(Player.username == form.player_4.data)))
         tarot_game.players.add(db.session.scalar(sa.select(Player).where(Player.username == form.player_5.data)))
         d=Deal()
-        d.game = tarot_game
+        tarot_game.deals.append(d)
         db.session.add(tarot_game)
         db.session.add(d)
         db.session.commit()
@@ -78,14 +78,18 @@ def get_edit_player(player_id):
     form = EditPlayerForm(username=player.username, gender=player.gender, color=player.color)
     return render_template("get_player.html", player=player, form=form)
 
-@app.route('/players/<player_id>/get_normal')
+@app.route('/players/<int:player_id>/get_normal')
 def get_normal_player(player_id):
-    player = db.session.get(Player, int(player_id))
+    player = db.session.get(Player, player_id)
+    if player is None:
+        return None
     return render_template("get_player.html", player=player)
 
-@app.route('/players/<player_id>/edit', methods=["POST", "GET"])
+@app.route('/players/<int:player_id>/edit', methods=["POST", "GET"])
 def edit_player(player_id):
-    player = db.session.get(Player, int(player_id))
+    player = db.session.get(Player, player_id)
+    if player is None:
+        return None
     form = EditPlayerForm(username=player.username, gender=player.gender, color=player.color)
     form.player = player
     if form.validate_on_submit():
@@ -96,18 +100,18 @@ def edit_player(player_id):
         return render_template('get_player.html', player=player)
     return render_template("get_player.html", player=player, form=form)
 
-@app.route('/game/<game_id>', methods=["POST", "GET"])
+@app.route('/game/<int:game_id>', methods=["POST", "GET"])
 def game(game_id):
-    g = db.session.get(TarotGame, int(game_id))
-    if not g:
+    g = db.session.get(TarotGame, game_id)
+    if g is None:
         return redirect(url_for("index"))
     g.last_accessed = datetime.now(timezone.utc)
     db.session.commit()
-    deals = db.session.scalars(g.deals.select()).all()
+    deals = g.deals
     players = db.session.scalars(g.players.select()).all()
     annonces = []
     for deal in deals:
-        annonce = db.session.scalars(deal.annonces.select()).all()
+        annonce = deal.annonces
         annonces.append(annonce)
     line_chart_datasets = get_line_chart_datasets(players, deals, annonces)
     called_pie_chart_dataset = get_called_pie_chart_dataset(deals, players)
@@ -129,6 +133,8 @@ def game(game_id):
 @app.route('/game/<game_id>/get_edit_players')
 def game_get_edit_player(game_id):
     game = db.session.get(TarotGame, int(game_id))
+    if game is None:
+        return None
     players = db.session.scalars(game.players.select()).all()
     all_usernames = [player.username for player in db.session.scalars(sa.select(Player)).all()]
     form = EditTarotGamePlayer()
@@ -144,9 +150,11 @@ def game_get_edit_player(game_id):
     form.player_5.data=players[4].username
     return render_template("game_edit_player.html", game=game, players=players, form=form)
 
-@app.route('/game/<game_id>/edit_players', methods=["GET", "POST"])
+@app.route('/game/<int:game_id>/edit_players', methods=["GET", "POST"])
 def game_edit_players(game_id):
-    game = db.session.get(TarotGame, int(game_id))
+    game = db.session.get(TarotGame, game_id)
+    if game is None:
+        return None
     players = db.session.scalars(game.players.select()).all()
     all_usernames = [player.username for player in db.session.scalars(sa.select(Player)).all()]
     form = EditTarotGamePlayer()
@@ -156,7 +164,7 @@ def game_edit_players(game_id):
     form.player_4.choices=all_usernames
     form.player_5.choices=all_usernames
     if form.validate_on_submit():
-        deals = db.session.scalars(game.deals.select()).all()
+        deals = game.deals
         olds = []
         news = []
         for i in range(5):
@@ -175,7 +183,7 @@ def game_edit_players(game_id):
             for player in news:
                 game.players.add(player)
             db.session.commit()
-            deals = db.session.scalars(game.deals.select()).all()
+            deals = game.deals
         players = db.session.scalars(game.players.select()).all()
         return render_template("game_edit_player.html", game=game, players=players)
     return render_template("game_edit_player.html", game=game, players=players, form=form)
@@ -193,6 +201,8 @@ def game_get_players(game_id):
 def game_get_edit_deal(game_id, deal_id):
     game = db.session.get(TarotGame, game_id)
     deal = db.session.get(Deal, deal_id)
+    if game is None or not deal in game.deals:
+        return None
     player_usernames = [""] + [player.username for player in db.session.scalars(game.players.select()).all()]
     announcement = [(0, ""), (1, "petite"), (2, "garde"), (3, "garde-sans"), (4, "garde-contre")]
     form = EditDealForm()
@@ -204,7 +214,7 @@ def game_get_edit_deal(game_id, deal_id):
     form.announcement.data = str(deal.announcement)
     form.nb_oudlers.data = deal.nb_oudlers
     form.nb_points.data = deal.nb_points
-    for annonce in db.session.scalars(deal.annonces.select()).all():
+    for annonce in deal.annonces:
         form.annonces.append_entry()
         form.annonces.entries[-1].player.choices = player_usernames
         form.annonces.entries[-1].player.data = annonce.player.username if annonce.player else ""
@@ -215,7 +225,7 @@ def game_get_edit_deal(game_id, deal_id):
 def game_edit_deal(game_id, deal_id):
     game = db.session.get(TarotGame, game_id)
     deal = db.session.get(Deal, deal_id)
-    if not deal in db.session.scalars(game.deals.select()).all():
+    if not deal in game.deals or game is None:
         return
     player_usernames = [""] + [player.username for player in db.session.scalars(game.players.select()).all()]
     announcement = [(0, ""), (1, "petite"), (2, "garde"), (3, "garde-sans"), (4, "garde-contre")]
@@ -245,13 +255,13 @@ def game_edit_deal(game_id, deal_id):
             deal.announcement = form.announcement.data
             deal.nb_oudlers = form.nb_oudlers.data
             deal.nb_points = form.nb_points.data
-            annonces = db.session.scalars(deal.annonces.select()).all()
+            annonces = deal.annonces
             for i in range(len(annonces)):
                 annonces[i].player = db.session.scalar(game.players.select().where(Player.username == form.annonces.entries[i].player.data))
                 annonces[i].valeur = int(form.annonces.entries[i].annonce.data)
             db.session.commit()
             players = db.session.scalars(game.players.select()).all()
-            annonces = db.session.scalars(deal.annonces.select()).all()
+            annonces = deal.annonces
             return render_template("game_edit_deal.html", game=game, deal=deal, annonces=annonces, annonces_label=ANNONCES, announcement=ANNOUNCEMENT, players=players)
         
     for annonce in form.annonces.entries:
@@ -268,11 +278,11 @@ def game_edit_deal(game_id, deal_id):
 def game_get_deal(game_id, deal_id):
     game = db.session.get(TarotGame, game_id)
     deal = db.session.get(Deal, deal_id)
-    if not deal in db.session.scalars(game.deals.select()).all():
-        return
+    if not deal in game.deals or game is None:
+        return None
     announcement = ANNOUNCEMENT
     players = db.session.scalars(game.players.select()).all()
-    annonces = db.session.scalars(deal.annonces.select()).all()
+    annonces = deal.annonces
     annonces_label = ANNONCES
     return render_template("game_edit_deal.html", game=game, deal=deal, announcement=announcement, annonces=annonces, annonces_label=annonces_label, players=players)
 
@@ -280,12 +290,12 @@ def game_get_deal(game_id, deal_id):
 def game_deal_add_annonce(game_id: int, deal_id: int):
     game = db.session.get(TarotGame, game_id)
     if game is None:
-        return
+        return None
     deal = db.session.get(Deal, deal_id)
-    if deal is None or not deal in db.session.scalars(game.deals.select()).all():
-        return
+    if not deal in game.deals:
+        return None
     annonce = Annonce()
-    annonce.deal = deal
+    deal.annonces.append(annonce)
     db.session.add(annonce)
     db.session.commit()
     
@@ -312,9 +322,9 @@ def game_deal_remove_annonce(game_id: int, deal_id: int):
     if game is None:
         return
     deal = db.session.get(Deal, deal_id)
-    if deal is None or not deal in db.session.scalars(game.deals.select()).all():
+    if deal is None or not deal in game.deals:
         return
-    annonces = db.session.scalars(deal.annonces.select()).all()
+    annonces = deal.annonces
     last_annonce = annonces[-1]
     db.session.delete(last_annonce)
     db.session.commit()
@@ -336,8 +346,10 @@ def game_deal_remove_annonce(game_id: int, deal_id: int):
 @app.route('/game/<int:game_id>/new_deal')
 def game_new_deal(game_id):
     game = db.session.get(TarotGame, game_id)
+    if game is None:
+        return None
     deal = Deal()
-    game.deals.add(deal)
+    game.deals.append(deal)
     db.session.commit()
     return render_template("game_new_deal.html", game=game, deal=deal, announcement=ANNOUNCEMENT)
 
@@ -345,8 +357,8 @@ def game_new_deal(game_id):
 def game_get_graphics(game_id):
     game = db.session.get(TarotGame, game_id)
     players = db.session.scalars(game.players.select()).all()
-    deals = db.session.scalars(game.deals.select()).all()
-    annonces = [db.session.scalars(deal.annonces.select()).all() for deal in deals]
+    deals = game.deals
+    annonces = [deal.annonces for deal in deals]
     line_chart_datasets = get_line_chart_datasets(players, deals, annonces)
     called_pie_chart_dataset = get_called_pie_chart_dataset(deals, players)
     dealer_pie_chart_dataset = get_dealers_pie_chart_dataset(deals, players)
@@ -360,19 +372,7 @@ def game_delete(game_id: int):
     if game is None:
         flash("La partie n'existe pas")
         return redirect(url_for("game", game_id=game_id))
-    
-    """
-    for player in db.session.scalars(game.players.select()).all():
-        print(f"Removed player {player.id}")
-        game.remove_player(player)
-    """
-    
-    print(f"Nombre de donne: {len(db.session.scalars(sa.select(Deal)).all())}")
-    
-    print(f"Removed game {game.id}")
-    
-    print(f"Nombre de donne: {len(db.session.scalars(sa.select(Deal)).all())}")
-    
+
     db.session.delete(game)
     db.session.commit()
     return redirect(url_for("games"))

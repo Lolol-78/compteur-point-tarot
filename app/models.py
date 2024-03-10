@@ -23,7 +23,7 @@ class TarotGame(db.Model):
         back_populates='games',
         passive_deletes=True)
     
-    deals: so.WriteOnlyMapped['Deal'] = so.relationship(back_populates="game", passive_deletes=True, cascade="all, delete, delete-orphan")
+    deals = so.relationship("Deal", cascade="all, delete", backref="game")
     
     creation_date: so.Mapped[Optional[datetime]] = so.mapped_column(sa.DateTime(), default=lambda: datetime.now(timezone.utc))
     last_accessed: so.Mapped[Optional[datetime]] = so.mapped_column(sa.DateTime(), default=lambda: datetime.now(timezone.utc))
@@ -63,8 +63,8 @@ class Deal(db.Model):
     
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     
-    game_id: so.Mapped[int] = so.mapped_column(sa.Integer, sa.ForeignKey(TarotGame.id, name="fk_game_tarot_game", ondelete="CASCADE"), index=True)
-    game: so.Mapped[TarotGame] = so.relationship(back_populates="deals")
+    game_id: so.Mapped[int] = so.mapped_column(sa.Integer, sa.ForeignKey(TarotGame.id, name="fk_game_tarot_game"), index=True)
+    #game: so.Mapped[TarotGame] = so.relationship(back_populates="deals")
     
     dealer_id: so.Mapped[Optional[int]] = so.mapped_column(sa.ForeignKey(Player.id, name="fk_dealer_player"), index=True)
     dealer: so.Mapped[Player] = so.relationship(foreign_keys=[dealer_id])
@@ -72,7 +72,7 @@ class Deal(db.Model):
     called_id: so.Mapped[Optional[int]] = so.mapped_column(sa.ForeignKey(Player.id, name="fk_called_player"), index=True)
     called: so.Mapped[Player] = so.relationship(foreign_keys=[called_id])
     
-    annonces: so.WriteOnlyMapped['Annonce'] = so.relationship(back_populates="deal")
+    annonces = so.relationship("Annonce", cascade="all, delete", backref="deal")
     
     nb_oudlers: so.Mapped[int] = so.mapped_column(sa.Integer, default=0)
     
@@ -87,7 +87,7 @@ class Annonce(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     
     deal_id: so.Mapped[int] = so.mapped_column(sa.Integer, sa.ForeignKey(Deal.id, name="fk_deal_annonce"), index=True)
-    deal: so.Mapped[Deal] = so.relationship(back_populates="annonces")
+    #deal: so.Mapped[Deal] = so.relationship(back_populates="annonces")
     
     valeur: so.Mapped[int] = so.mapped_column(sa.Integer, default=0)
     
