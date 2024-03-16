@@ -1,4 +1,4 @@
-from app import app, db, color_picker
+from app import app, db
 from flask import render_template, flash, redirect, url_for, request
 import sqlalchemy as sa
 from datetime import datetime, timezone
