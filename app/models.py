@@ -2,7 +2,7 @@ from typing import Optional
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from datetime import datetime, timezone
-from app import db, app
+from app import db
 
 
 players_many_to_many = sa.Table("players",

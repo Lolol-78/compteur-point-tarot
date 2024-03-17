@@ -8,11 +8,6 @@ import sqlalchemy as sa
 ANNONCES_CHOICES = [(0, 'fait une poignée'), (1, 'fait une double-poignée'), (2, 'fait une triple-poignée'), (3, 'a mis le petit au bout'), (4, "s'est fait prendre le petit au bout")]
 
 
-def get_all_player_usernames(app):
-    with app.app_context():
-        players = db.session.scalars(sa.select(Player)).all()
-        usernames = [player.username for player in players]
-    return usernames
 
 class NewTarotGameForm(FlaskForm):
     player_1 = SelectField("Joueur 1", validators=[DataRequired()])
@@ -42,43 +37,6 @@ class NewTarotGameForm(FlaskForm):
         if player_5.data in {self.player_2.data, self.player_3.data, self.player_4.data, self.player_1.data}:
             raise ValidationError("Tous les joueurs doivent être différents")
 
-
-class NewPlayerForm(FlaskForm):
-    username = StringField('Nom', validators=[Length(min=0, max=20)])
-    gender = SelectField('genre', choices=[(-1, ""), (0, '♂'), (1, '♀')], default=-1, validators=[DataRequired()])
-    color =StringField('Couleur', default="#563d7c")
-    submit = SubmitField('Ajouter')
-    
-    def validate_username(self, username):
-        if username.data == "":
-            raise ValidationError("Ce champ est obligatoire")
-        player = db.session.scalar(sa.select(Player).where(Player.username == username.data))
-        if player is not None:
-            raise ValidationError('Ce joueur existe déjà')
-    
-    def validate_gender(self, gender):
-        if gender.data == "-1":
-            raise ValidationError("Un genre est necessaire pour les accords grammaticaux")
-        if not gender.data in {"0", "1"}:
-            raise ValidationError("Mais qu'est-ce que t'essayes de faire ?")
-
-
-class EditPlayerForm(FlaskForm):
-    username = StringField(validators=[Length(min=0, max=20)])
-    gender = SelectField('Genre:', choices=[(0, '♂'), (1, '♀')])
-    color = StringField('Couleur:')
-    submit = SubmitField('Soumettre')
-    player = None
-    
-    def validate_username(self, username):
-        player = db.session.scalar(sa.select(Player).where(Player.username == username.data))
-        print(self.player)
-        print(username.data)
-        if username.data == "":
-            raise ValidationError("Ce champs est obligatoire")
-        if player is not None and player.username != self.player.username:
-            print(2)
-            raise ValidationError("Ce nom est déjà pris")
 
 
 class EditDealAnnonceForm(FlaskForm):

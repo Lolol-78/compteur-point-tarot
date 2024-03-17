@@ -1,33 +1,20 @@
-from app import app, db
-from flask import render_template, flash, redirect, url_for, request
+from app import db
+from flask import render_template, flash, redirect, url_for
 import sqlalchemy as sa
 from datetime import datetime, timezone
 from app.models import TarotGame, Player, Deal, Annonce
-from app.forms import NewTarotGameForm, NewPlayerForm, EditPlayerForm, EditDealForm, EditTarotGamePlayer, EditDealAnnonceForm
-from app.emoji import get_random_unique_emoji
-from app.tarot_func import get_line_chart_datasets, get_called_pie_chart_dataset, get_dealers_pie_chart_dataset, get_win_bar_chart_dataset, get_annonce_bar_chart_dataset
+from app.game.forms import EditDealForm, EditTarotGamePlayer, NewTarotGameForm
+from app.game.emoji import get_random_unique_emoji
+from app.game.tarot_func import get_line_chart_datasets, get_called_pie_chart_dataset, get_dealers_pie_chart_dataset, get_win_bar_chart_dataset, get_annonce_bar_chart_dataset
+
+from app.game import bp
 
 ANNONCES = ['fait une poignée', 'fait une double-poignée', 'fait une triple-poignée', 'a mis le petit au bout', "s'est fait prendre le petit au bout"]
 ANNONCES_CHOICES = [(0, 'fait une poignée'), (1, 'fait une double-poignée'), (2, 'fait une triple-poignée'), (3, 'a mis le petit au bout'), (4, "s'est fait prendre le petit au bout")]
 ANNOUNCEMENT = ["...", "petite", "garde", "garde-sans", "garde-contre"]
 
-@app.route('/index')
-def index():
-    return redirect(url_for('games'))
 
-@app.route('/')
-def home():
-    return redirect(url_for('games'))
-
-@app.route('/games', methods=['POST', 'GET'])
-def games():
-    tarot_games = db.session.scalars(sa.select(TarotGame).order_by(TarotGame.creation_date.desc())).all()
-    players_username = [[player.username for player in db.session.scalars(game.players.select()).all()] for game in tarot_games]
-    
-    return render_template('games.html', tarot_games=tarot_games, players_username=players_username, title="Parties")
-
-
-@app.route('/new_tarot_game', methods=["POST", "GET"])
+@bp.route('/new_tarot_game', methods=["POST", "GET"])
 def new_tarot_game():
     players = db.session.scalars(sa.select(Player)).all()
     usernames = [player.username for player in players]
@@ -55,56 +42,12 @@ def new_tarot_game():
     return render_template("new_tarot_game.html", form=form, title="Nouvelle Partie")
 
 
-@app.route("/new_player", methods=["POST", "GET"])
-def new_player():
-    form = NewPlayerForm()
-    if form.validate_on_submit():
-        player = Player(username=form.username.data, gender=form.gender.data, color=request.form.get("color"))
-        db.session.add(player)
-        db.session.commit()
-        flash(f"Le joueur {player.username} a bien été créé !")
-        return redirect(url_for("index"))
-    return render_template("new_player.html", form=form, title="Nouveau Joueur")
 
-
-@app.route('/players')
-def players():
-    p = db.session.scalars(sa.select(Player)).all()
-    return render_template("players.html", players=p, title="Joueurs")
-
-@app.route('/players/<player_id>/get_edit')
-def get_edit_player(player_id):
-    player = db.session.get(Player, int(player_id))
-    form = EditPlayerForm(username=player.username, gender=player.gender, color=player.color)
-    return render_template("get_player.html", player=player, form=form)
-
-@app.route('/players/<int:player_id>/get_normal')
-def get_normal_player(player_id):
-    player = db.session.get(Player, player_id)
-    if player is None:
-        return None
-    return render_template("get_player.html", player=player)
-
-@app.route('/players/<int:player_id>/edit', methods=["POST", "GET"])
-def edit_player(player_id):
-    player = db.session.get(Player, player_id)
-    if player is None:
-        return None
-    form = EditPlayerForm(username=player.username, gender=player.gender, color=player.color)
-    form.player = player
-    if form.validate_on_submit():
-        player.username = form.username.data
-        player.gender = form.gender.data
-        player.color = form.color.data
-        db.session.commit()
-        return render_template('get_player.html', player=player)
-    return render_template("get_player.html", player=player, form=form)
-
-@app.route('/game/<int:game_id>', methods=["POST", "GET"])
+@bp.route('/game/<int:game_id>', methods=["POST", "GET"])
 def game(game_id):
     g = db.session.get(TarotGame, game_id)
     if g is None:
-        return redirect(url_for("index"))
+        return redirect(url_for("main.games"))
     g.last_accessed = datetime.now(timezone.utc)
     db.session.commit()
     deals = g.deals
@@ -118,7 +61,7 @@ def game(game_id):
     dealer_pie_chart_dataset = get_dealers_pie_chart_dataset(deals, players)
     win_bar_chart_dataset = get_win_bar_chart_dataset(deals, players, annonces)
     annonce_bar_chart_dataset = get_annonce_bar_chart_dataset(deals, players, annonces)
-    return render_template("game.html", game=g, 
+    return render_template("game/game.html", game=g, 
                                         players=players, 
                                         deals=deals, 
                                         announcement=ANNOUNCEMENT, 
@@ -130,7 +73,7 @@ def game(game_id):
                                         win_bar_chart_dataset=win_bar_chart_dataset,
                                         annonce_bar_chart_dataset=annonce_bar_chart_dataset)
 
-@app.route('/game/<game_id>/get_edit_players')
+@bp.route('/game/<game_id>/get_edit_players')
 def game_get_edit_player(game_id):
     game = db.session.get(TarotGame, int(game_id))
     if game is None:
@@ -148,9 +91,9 @@ def game_get_edit_player(game_id):
     form.player_3.data=players[2].username 
     form.player_4.data=players[3].username
     form.player_5.data=players[4].username
-    return render_template("game_edit_player.html", game=game, players=players, form=form)
+    return render_template("game/game_edit_player.html", game=game, players=players, form=form)
 
-@app.route('/game/<int:game_id>/edit_players', methods=["GET", "POST"])
+@bp.route('/game/<int:game_id>/edit_players', methods=["GET", "POST"])
 def game_edit_players(game_id):
     game = db.session.get(TarotGame, game_id)
     if game is None:
@@ -185,19 +128,19 @@ def game_edit_players(game_id):
             db.session.commit()
             deals = game.deals
         players = db.session.scalars(game.players.select()).all()
-        return render_template("game_edit_player.html", game=game, players=players)
-    return render_template("game_edit_player.html", game=game, players=players, form=form)
+        return render_template("game/game_edit_player.html", game=game, players=players)
+    return render_template("game/game_edit_player.html", game=game, players=players, form=form)
 
-@app.route('/game/<int:game_id>/get_players')
+@bp.route('/game/<int:game_id>/get_players')
 def game_get_players(game_id):
     game = db.session.get(TarotGame, game_id)
     if game is None:
         return
     else:
         players = db.session.scalars(game.players.select()).all()
-        return render_template("game_edit_player.html", game=game, players=players)
+        return render_template("game/game_edit_player.html", game=game, players=players)
 
-@app.route('/game/<int:game_id>/<int:deal_id>/get_edit_deal')
+@bp.route('/game/<int:game_id>/<int:deal_id>/get_edit_deal')
 def game_get_edit_deal(game_id, deal_id):
     game = db.session.get(TarotGame, game_id)
     deal = db.session.get(Deal, deal_id)
@@ -219,9 +162,9 @@ def game_get_edit_deal(game_id, deal_id):
         form.annonces.entries[-1].player.choices = player_usernames
         form.annonces.entries[-1].player.data = annonce.player.username if annonce.player else ""
         form.annonces.entries[-1].annonce.data = str(annonce.valeur)
-    return render_template("game_edit_deal.html", game=game, deal=deal, form=form)
+    return render_template("game/game_edit_deal.html", game=game, deal=deal, form=form)
 
-@app.route('/game/<int:game_id>/<int:deal_id>/edit_deal', methods=["POST", "GET"])
+@bp.route('/game/<int:game_id>/<int:deal_id>/edit_deal', methods=["POST", "GET"])
 def game_edit_deal(game_id, deal_id):
     game = db.session.get(TarotGame, game_id)
     deal = db.session.get(Deal, deal_id)
@@ -262,7 +205,7 @@ def game_edit_deal(game_id, deal_id):
             db.session.commit()
             players = db.session.scalars(game.players.select()).all()
             annonces = deal.annonces
-            return render_template("game_edit_deal.html", game=game, deal=deal, annonces=annonces, annonces_label=ANNONCES, announcement=ANNOUNCEMENT, players=players)
+            return render_template("game/game_edit_deal.html", game=game, deal=deal, annonces=annonces, annonces_label=ANNONCES, announcement=ANNOUNCEMENT, players=players)
         
     for annonce in form.annonces.entries:
             if annonce.player.data == "":
@@ -272,9 +215,9 @@ def game_edit_deal(game_id, deal_id):
                 annonce.player.errors = ("Joueur non valide", )
             if not 0 <= int(annonce.annonce.data) <= len(ANNONCES):
                 annonce.annonce.errors = ('Mauvaise annonce', )
-    return render_template("game_edit_deal.html", game=game, deal=deal, announcement=ANNOUNCEMENT, form=form)
+    return render_template("game/game_edit_deal.html", game=game, deal=deal, announcement=ANNOUNCEMENT, form=form)
 
-@app.route('/game/<int:game_id>/<int:deal_id>/get_deal')
+@bp.route('/game/<int:game_id>/<int:deal_id>/get_deal')
 def game_get_deal(game_id, deal_id):
     game = db.session.get(TarotGame, game_id)
     deal = db.session.get(Deal, deal_id)
@@ -284,9 +227,9 @@ def game_get_deal(game_id, deal_id):
     players = db.session.scalars(game.players.select()).all()
     annonces = deal.annonces
     annonces_label = ANNONCES
-    return render_template("game_edit_deal.html", game=game, deal=deal, announcement=announcement, annonces=annonces, annonces_label=annonces_label, players=players)
+    return render_template("game/game_edit_deal.html", game=game, deal=deal, announcement=announcement, annonces=annonces, annonces_label=annonces_label, players=players)
 
-@app.route('/game/<int:game_id>/<int:deal_id>/add_annonce', methods=['POST', 'GET'])
+@bp.route('/game/<int:game_id>/<int:deal_id>/add_annonce', methods=['POST', 'GET'])
 def game_deal_add_annonce(game_id: int, deal_id: int):
     game = db.session.get(TarotGame, game_id)
     if game is None:
@@ -314,9 +257,9 @@ def game_deal_add_annonce(game_id: int, deal_id: int):
     form.annonces.entries[-1].player.choices = player_usernames
     form.annonces.entries[-1].player.data = ""
     form.annonces.entries[-1].annonce.data = 0
-    return render_template("game_edit_deal.html", game=game, deal=deal, form=form)
+    return render_template("game/game_edit_deal.html", game=game, deal=deal, form=form)
 
-@app.route('/game/<int:game_id>/<int:deal_id>/remove_annonce', methods=['POST', 'GET'])
+@bp.route('/game/<int:game_id>/<int:deal_id>/remove_annonce', methods=['POST', 'GET'])
 def game_deal_remove_annonce(game_id: int, deal_id: int):
     game = db.session.get(TarotGame, game_id)
     if game is None:
@@ -341,9 +284,9 @@ def game_deal_remove_annonce(game_id: int, deal_id: int):
     for annonce in form.annonces.entries:
         annonce.player.choices = player_usernames
     form.annonces.pop_entry()
-    return render_template("game_edit_deal.html", game=game, deal=deal, form=form)
+    return render_template("game/game_edit_deal.html", game=game, deal=deal, form=form)
 
-@app.route('/game/<int:game_id>/new_deal')
+@bp.route('/game/<int:game_id>/new_deal')
 def game_new_deal(game_id):
     game = db.session.get(TarotGame, game_id)
     if game is None:
@@ -351,9 +294,9 @@ def game_new_deal(game_id):
     deal = Deal()
     game.deals.append(deal)
     db.session.commit()
-    return render_template("game_new_deal.html", game=game, deal=deal, announcement=ANNOUNCEMENT)
+    return render_template("game/game_new_deal.html", game=game, deal=deal, announcement=ANNOUNCEMENT)
 
-@app.route('/game/<int:game_id>/get_graphics')
+@bp.route('/game/<int:game_id>/get_graphics')
 def game_get_graphics(game_id):
     game = db.session.get(TarotGame, game_id)
     players = db.session.scalars(game.players.select()).all()
@@ -364,15 +307,15 @@ def game_get_graphics(game_id):
     dealer_pie_chart_dataset = get_dealers_pie_chart_dataset(deals, players)
     win_bar_chart_dataset = get_win_bar_chart_dataset(deals, players, annonces)
     annonce_bar_chart_dataset = get_annonce_bar_chart_dataset(deals, players, annonces)
-    return render_template("game_get_graphics.html", line_chart_datasets=line_chart_datasets, called_pie_chart_dataset=called_pie_chart_dataset, dealer_pie_chart_dataset=dealer_pie_chart_dataset, win_bar_chart_dataset=win_bar_chart_dataset, annonce_bar_chart_dataset=annonce_bar_chart_dataset)
+    return render_template("game/game_get_graphics.html", line_chart_datasets=line_chart_datasets, called_pie_chart_dataset=called_pie_chart_dataset, dealer_pie_chart_dataset=dealer_pie_chart_dataset, win_bar_chart_dataset=win_bar_chart_dataset, annonce_bar_chart_dataset=annonce_bar_chart_dataset)
 
-@app.route('/game/<int:game_id>/delete')
+@bp.route('/game/<int:game_id>/delete')
 def game_delete(game_id: int):
     game = db.session.get(TarotGame, game_id)
     if game is None:
         flash("La partie n'existe pas")
-        return redirect(url_for("game", game_id=game_id))
+        return redirect(url_for("games.game", game_id=game_id))
 
     db.session.delete(game)
     db.session.commit()
-    return redirect(url_for("games"))
+    return redirect(url_for("main.games"))
