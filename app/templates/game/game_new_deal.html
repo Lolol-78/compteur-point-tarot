@@ -3,5 +3,5 @@
 {{ jm.game_edit_deal(game, deal, announcement=announcement) }}
 <br>
 <div hx-target="this" hx-swap="outerHTML">
-    <button hx-get="{{ url_for('game_new_deal', game_id=game.id) }}" class="btn btn-primary">Ajouter une donne</button>
+    <button hx-get="{{ url_for('game.game_new_deal', game_id=game.id) }}" class="btn btn-primary">Ajouter une donne</button>
 </div>

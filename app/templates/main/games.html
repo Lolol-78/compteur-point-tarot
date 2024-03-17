@@ -3,7 +3,7 @@
 {% block content %}
 <div class="d-flex flex-row flex-wrap">
     {% for game in tarot_games %}
-    <a href="{{ url_for('game', game_id=game.id) }}" class="p-3" style="text-decoration: none;">
+    <a href="{{ url_for('game.game', game_id=game.id) }}" class="p-3" style="text-decoration: none;">
     <div class="card">
         <div class="card-body">
             <h1 class="card-title">{{ game.game_name }}</h1>

@@ -39,7 +39,7 @@ def new_tarot_game():
         db.session.commit()
         flash(f"La partie {name} a été créé!")
         return redirect(url_for("game", game_id=tarot_game.id))
-    return render_template("new_tarot_game.html", form=form, title="Nouvelle Partie")
+    return render_template("game/new_tarot_game.html", form=form, title="Nouvelle Partie")
 
 
 

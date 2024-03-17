@@ -1,6 +1,6 @@
 {% macro game_edit_players(game, players, form) %}
 {% if form %}
-<form hx-post="{{ url_for('game_edit_players', game_id=game.id) }}" hx-target="this" hx-swap="outerHTML">
+<form hx-post="{{ url_for('game.game_edit_players', game_id=game.id) }}" hx-target="this" hx-swap="outerHTML">
     {{ form.hidden_tag() }}
     {{ form.player_1(class='form-select' + (' is-invalid' if form.player_1.errors else ''), style="width: auto;") }}
     {%- for error in form.player_1.errors %}
@@ -23,7 +23,7 @@
         <div class="invalid-feedback">{{ error }}</div>
     {%- endfor %}
     {{ form.submit(class="btn btn-primary") }}
-    <button class="btn btn-secondary" hx-get="{{ url_for('game_get_players', game_id=game.id) }}">
+    <button class="btn btn-secondary" hx-get="{{ url_for('game.game_get_players', game_id=game.id) }}">
         Annuler
     </button>
 </form>
@@ -34,7 +34,7 @@
             {{ player.username }}<br>
         {% endfor %}
     </p>
-    <button hx-get="{{ url_for('game_get_edit_player', game_id=game.id) }}" class="btn border-primary text-primary">
+    <button hx-get="{{ url_for('game.game_get_edit_player', game_id=game.id) }}" class="btn border-primary text-primary">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
             <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
         </svg>
@@ -47,7 +47,7 @@
 
 {% macro game_edit_deal(game, deal, form, announcement, players, annonces, annonces_label) %}
 {% if form %}
-<form hx-post="{{ url_for('game_edit_deal', game_id=game.id, deal_id=deal.id) }}" hx-target="this" hx-swap="outerHTML" class="card">
+<form hx-post="{{ url_for('game.game_edit_deal', game_id=game.id, deal_id=deal.id) }}" hx-target="this" hx-swap="outerHTML" class="card">
 {{ form.hidden_tag() }}
 {% else %}
 <div hx-target="this" hx-swap="outerHTML" class="card">
@@ -56,13 +56,13 @@
         <div class="d-flex flex-row flex-wrap">
             <div class="p-2">
                 {% if not form %}
-                <button class="btn border-secondary text-secondary" type="button" hx-get="{{ url_for('game_get_edit_deal', game_id=game.id, deal_id=deal.id) }}">
+                <button class="btn border-secondary text-secondary" type="button" hx-get="{{ url_for('game.game_get_edit_deal', game_id=game.id, deal_id=deal.id) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
                         <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path>
                     </svg>
                 </button>
                 {% else %}
-                <button class="btn text-danger border-danger" hx-get="{{ url_for('game_get_deal', game_id=game.id, deal_id=deal.id) }}" type="button">
+                <button class="btn text-danger border-danger" hx-get="{{ url_for('game.game_get_deal', game_id=game.id, deal_id=deal.id) }}" type="button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
                         <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
                     </svg>
@@ -175,14 +175,14 @@
                     <div class="d-flex flex-row pb-1 justify-content-end flex-wrap">
                         {% if loop.last %}
                         <div class="px-1">
-                            <button class="btn text-primary border-primary" hx-post="{{ url_for('game_deal_add_annonce', game_id=game.id, deal_id=deal.id) }}" type="button">
+                            <button class="btn text-primary border-primary" hx-post="{{ url_for('game.game_deal_add_annonce', game_id=game.id, deal_id=deal.id) }}" type="button">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
                                 </svg>
                             </button>
                         </div>
                         <div class="px-1">
-                            <button class="btn border-danger text-danger" hx-post="{{ url_for('game_deal_remove_annonce', game_id=game.id, deal_id=deal.id) }}" type="button">
+                            <button class="btn border-danger text-danger" hx-post="{{ url_for('game.game_deal_remove_annonce', game_id=game.id, deal_id=deal.id) }}" type="button">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
                                     <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
@@ -205,7 +205,7 @@
                     </div>
                     {% endfor %}
                     {% if form.annonces.entries|length == 0 %}
-                    <button class="btn text-primary border-primary" hx-post="{{ url_for('game_deal_add_annonce', game_id=game.id, deal_id=deal.id) }}" type="button">
+                    <button class="btn text-primary border-primary" hx-post="{{ url_for('game.game_deal_add_annonce', game_id=game.id, deal_id=deal.id) }}" type="button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
                         </svg>

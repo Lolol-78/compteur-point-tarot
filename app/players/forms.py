@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, SubmitField, SelectField, Form, FieldList, FormField
 from wtforms.validators import DataRequired, NumberRange, Length, ValidationError
-from app import app, db
+from app import db
 from app.models import Player, Deal
 import sqlalchemy as sa
 

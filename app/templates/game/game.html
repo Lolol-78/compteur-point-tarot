@@ -12,7 +12,7 @@
             <button class="nav-link" id="points-tab" data-bs-toggle="tab" data-bs-target="#points-tab-pane" type="button" role="tab" aria-controls="points-tab-pane" aria-selected="false">Points</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="stats-tab" data-bs-toggle="modal" data-bs-target="#stats-tab-modal" type="button" role="tab" aria-controls="stats-tab-modal" aria-selected="false" hx-get="{{ url_for('game_get_graphics', game_id=game.id) }}" hx-trigger="click" hx-target="#htmx-graphics" hx-swap="outerHTML">Statistiques</button>
+            <button class="nav-link" id="stats-tab" data-bs-toggle="modal" data-bs-target="#stats-tab-modal" type="button" role="tab" aria-controls="stats-tab-modal" aria-selected="false" hx-get="{{ url_for('game.game_get_graphics', game_id=game.id) }}" hx-trigger="click" hx-target="#htmx-graphics" hx-swap="outerHTML">Statistiques</button>
         </li>
     </ul>    
     <div class="tab-content" id="myTabContent">
@@ -40,7 +40,7 @@
             <br>
             {% endfor %}
             <div hx-target="this" hx-swap="outerHTML">
-                <button hx-get="{{ url_for('game_new_deal', game_id=game.id) }}" class="btn border-primary text-primary">
+                <button hx-get="{{ url_for('game.game_new_deal', game_id=game.id) }}" class="btn border-primary text-primary">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
                     </svg>
@@ -80,7 +80,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <a type="button" class="btn btn-danger" href="{{ url_for('game_delete', game_id=game.id) }}">Continuer</a>
+                    <a type="button" class="btn btn-danger" href="{{ url_for('game.game_delete', game_id=game.id) }}">Continuer</a>
                 </div>
             </div>
         </div>

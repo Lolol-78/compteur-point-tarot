@@ -1,6 +1,6 @@
 {% macro edit_player(player, form) %}
 {% if form %}
-<form hx-post="/players/{{ player.id }}/edit" hx-target="this" hx-swap="outerHTML" class="card">
+<form hx-post="{{ url_for('players.edit_player', player_id=player.id) }}" hx-target="this" hx-swap="outerHTML" class="card">
     {{ form.hidden_tag() }}
 {% else %}
 <div hx-target="this" hx-swap="outerHTML" class="card">
