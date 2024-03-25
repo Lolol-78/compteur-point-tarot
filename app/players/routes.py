@@ -16,7 +16,7 @@ def new_player():
         db.session.add(player)
         db.session.commit()
         flash(f"Le joueur {player.username} a bien été créé !")
-        return redirect(url_for("main.games"))
+        return redirect(url_for("players.new_player"))
     return render_template("players/new_player.html", form=form, title="Nouveau Joueur")
 
 @bp.route('/players/<player_id>/get_edit')
