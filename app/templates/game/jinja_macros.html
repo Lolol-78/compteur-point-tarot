@@ -1,9 +1,9 @@
 {% macro game_edit_players(game, players, form) %}
 {% if form %}
 <form hx-post="{{ url_for('game.game_edit_players', game_id=game.id) }}" hx-target="this" hx-swap="outerHTML">
-    <div class="d-flex flex-column justify-content-center align-items-center row-gap-2">
+    <div class="d-flex flex-column row-gap-2">
         {{ form.hidden_tag() }}
-        <div class="d-flex flex-column justify-content-center align-items-center row-gap-1">
+        <div>
             {{ form.player_1(class='form-select' + (' is-invalid' if form.player_1.errors else ''), style="width: auto;") }}
             {%- for error in form.player_1.errors %}
                 <div class="invalid-feedback">{{ error }}</div>
@@ -25,7 +25,7 @@
                 <div class="invalid-feedback">{{ error }}</div>
             {%- endfor %}
         </div>
-        <div class="d-flex flex-row justify-content-center align-items-center column-gap-2">
+        <div class="d-flex flex-row column-gap-2">
             {{ form.submit(class="btn border-primary text-primary") }}
             <button class="btn border-secondary text-secondary" hx-get="{{ url_for('game.game_get_players', game_id=game.id) }}">
                 Annuler
@@ -34,14 +34,12 @@
     </div>
 </form>
 {% else %}
-<div class="d-flex flex-column justify-content-center align-items-center row-gap-1" hx-target="this" hx-swap="outerHTML">
-    <div>
-        {% for player in players %}
-        <div align="center">
-            {{ player.username }}
-        </div>
-        {% endfor %}
-    </div>
+<div hx-target="this" hx-swap="outerHTML">
+    {% for player in players %}
+        {{ player.username }}
+        <br>
+    {% endfor %}
+    <br>
     <button hx-get="{{ url_for('game.game_get_edit_player', game_id=game.id) }}" class="btn border-primary text-primary">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
             <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
@@ -61,8 +59,8 @@
 <div hx-target="this" hx-swap="outerHTML" class="card">
 {% endif %}
     <div class="card-body">
-        <div class="d-flex flex-row flex-wrap">
-            <div class="p-2">
+        <div class="d-flex flex-row flex-wrap column-gap-2">
+            <div class="d-flex flex-column row-gap-1">
                 {% if not form %}
                 <button class="btn border-secondary text-secondary" type="button" hx-get="{{ url_for('game.game_get_edit_deal', game_id=game.id, deal_id=deal.id) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
@@ -75,7 +73,6 @@
                         <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
                     </svg>
                 </button>
-                <br>
                 <button class="btn text-success border-success">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
                         <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/>
@@ -83,163 +80,167 @@
                 </button>
                 {% endif %}
             </div>
-            <div class="p-2">
-                <div class="d-flex flex-row mb-2 align-items-center flex-wrap">
-                    <div class="px-1">
-                        {% if form %}
-                            {{ form.dealer(class='form-select' + (' is-invalid' if form.dealer.errors else ''), style="width: auto;") }}
-                            {%- for error in form.dealer.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                            {%- endfor %}
-                        {% else %}
-                            <select class="form-select" style="--bs-form-select-bg-img: none" disabled>
-                                <option selected>{% if deal.dealer %}{{ deal.dealer.username }}{% else %}...{% endif %}</option>
-                                {% for player in players %}
-                                <option>{% if not (deal.dealer and player.username == deal.dealer.username) %}{{ player.username }}{% endif %}</option>
-                                {% endfor %}
-                            </select>
-                        {% endif %}
+            <div class="d-flex flex-column row-gap-4">
+                <div class="d-flex flex-column row-gap-1">
+                    <!-- L'endroit où les caractéristiques de la donne sont précisés -->
+                    <div class="d-flex flex-row align-items-center flex-wrap column-gap-2">
+                        <div>
+                            {% if form %}
+                                {{ form.dealer(class='form-select' + (' is-invalid' if form.dealer.errors else ''), style="width: auto;") }}
+                                {%- for error in form.dealer.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {%- endfor %}
+                            {% else %}
+                                <select class="form-select" style="--bs-form-select-bg-img: none" disabled>
+                                    <option selected>{% if deal.dealer %}{{ deal.dealer.username }}{% else %}...{% endif %}</option>
+                                    {% for player in players %}
+                                    <option>{% if not (deal.dealer and player.username == deal.dealer.username) %}{{ player.username }}{% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                            {% endif %}
+                        </div>
+                        <div>
+                            fait une
+                        </div>
+                        <div>
+                            {% if form %}
+                                {{ form.announcement(class='form-select' + (' is-invalid' if form.announcement.errors else ''), style="width: auto;") }}
+                                {%- for error in form.announcement.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {%- endfor %}
+                            {% else %}
+                                <select class="form-select" style="--bs-form-select-bg-img: none" disabled>
+                                    <option>{{ announcement[deal.announcement] }}</option>
+                                    <option>garde-contre</option>
+                                </select>
+                            {% endif %}
+                        </div>
+                        <div>
+                            et {% if deal.dealer != deal.called or form %} appelle {% endif %}
+                        </div>
+                        <div>
+                            {% if form %}
+                                {{ form.called(class='form-select' + (' is-invalid' if form.called.errors else ''), style="width: auto;") }}
+                                {%- for error in form.called.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {%- endfor %}
+                            {% else %}
+                                <select class="form-select" style="--bs-form-select-bg-img: none" disabled>
+                                    <option selected>{% if deal.called %}{% if deal.dealer == deal.called %}s'appelle !{% else %}{{ deal.called.username }}{% endif %}{% else %}...{% endif %}</option>
+                                    {% for player in players %}
+                                    <option>{{ player.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% endif %}
+                        </div>
+                        <div>
+                            !
+                        </div>
                     </div>
-                    <div class="px-1">
-                        fait une
-                    </div>
-                    <div class="px-1">
-                        {% if form %}
-                            {{ form.announcement(class='form-select' + (' is-invalid' if form.announcement.errors else ''), style="width: auto;") }}
-                            {%- for error in form.announcement.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                            {%- endfor %}
-                        {% else %}
-                            <select class="form-select" style="--bs-form-select-bg-img: none" disabled>
-                                <option>{{ announcement[deal.announcement] }}</option>
-                                <option>garde-contre</option>
-                            </select>
-                        {% endif %}
-                    </div>
-                    <div class="px-1">
-                        et {% if deal.dealer != deal.called or form %} appelle {% endif %}
-                    </div>
-                    <div class="px-1">
-                        {% if form %}
-                            {{ form.called(class='form-select' + (' is-invalid' if form.called.errors else ''), style="width: auto;") }}
-                            {%- for error in form.called.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                            {%- endfor %}
-                        {% else %}
-                            <select class="form-select" style="--bs-form-select-bg-img: none" disabled>
-                                <option selected>{% if deal.called %}{% if deal.dealer == deal.called %}s'appelle !{% else %}{{ deal.called.username }}{% endif %}{% else %}...{% endif %}</option>
-                                {% for player in players %}
-                                <option>{{ player.username }}</option>
-                                {% endfor %}
-                            </select>
-                        {% endif %}
-                    </div>
-                    <div class="px-1">
-                        !
+                    <div class="d-flex flex-row flex-wrap column-gap-2">
+                        <div>
+                            <label class="col-form-label">
+                                {% if deal.dealer %}{% if deal.called %}{% if deal.dealer != deal.called %}{% if deal.dealer.gender and deal.called.gender %}Elles{% else %}Ils{% endif %} avaient{% else %}{% if deal.dealer.gender %}Elle{% else %}Il{% endif %} avait{% endif %}{% else %}{% if deal.dealer.gender %}Elle{% else %}Il{% endif %}avait{% endif %}{% else %}Il avait{% endif %}
+                            </label>
+                        </div>
+                        <div>
+                            {% if form %}
+                                {{ form.nb_oudlers(size=2, class='form-control' + (' is-invalid' if form.nb_oudlers.errors else ''), style="width: auto;") }}
+                                {%- for error in form.nb_oudlers.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {%- endfor %}
+                            {% else %}
+                                <input type="text" size="2" class="form-control" placeholder="..." value="{{ deal.nb_oudlers }}" disabled readonly>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="col-form-label">
+                                bout{% if deal.nb_oudlers > 1 %}s{% endif %} et {% if deal.dealer and deal.called and deal.dealer != deal.called %} ont{% else %} a{% endif %} eu 
+                            </label>
+                        </div>
+                        <div>
+                            {% if form %}
+                                {{ form.nb_points(class='form-control' + (' is-invalid' if form.nb_points.errors else ''), style="width: auto;", size="3") }}
+                                {%- for error in form.nb_points.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {%- endfor %}
+                            {% else %}
+                                <input type="text" size="3" class="form-control" placeholder="..." value="{{ deal.nb_points }}" style="width: auto;" disabled readonly>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="col-form-label">
+                                point{% if deal.nb_points > 1 %}s{% endif %}
+                            </label>
+                        </div>
                     </div>
                 </div>
-                <div class="d-flex flex-row flex-wrap">
-                    <div class="px-1">
-                        <label class="col-form-label">
-                            {% if deal.dealer %}{% if deal.called %}{% if deal.dealer != deal.called %}{% if deal.dealer.gender and deal.called.gender %}Elles{% else %}Ils{% endif %} avaient{% else %}{% if deal.dealer.gender %}Elle{% else %}Il{% endif %} avait{% endif %}{% else %}{% if deal.dealer.gender %}Elle{% else %}Il{% endif %}avait{% endif %}{% else %}Il avait{% endif %}
-                        </label>
-                    </div>
-                    <div class="px-1">
+                <div class="">
+                    <!-- Les annonces (poignées) -->
+                    <div class="d-flex flex-column flex-wrap align-items-start row-gap-2">
                         {% if form %}
-                            {{ form.nb_oudlers(size=2, class='form-control' + (' is-invalid' if form.nb_oudlers.errors else ''), style="width: auto;") }}
-                            {%- for error in form.nb_oudlers.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                            {%- endfor %}
-                        {% else %}
-                            <input type="text" size="2" class="form-control" placeholder="..." value="{{ deal.nb_oudlers }}" disabled readonly>
-                        {% endif %}
-                    </div>
-                    <div class="px-1">
-                        <label class="col-form-label">
-                            bout{% if deal.nb_oudlers > 1 %}s{% endif %} et {% if deal.dealer and deal.called and deal.dealer != deal.called %} ont{% else %} a{% endif %} eu 
-                        </label>
-                    </div>
-                    <div class="px-1">
-                        {% if form %}
-                            {{ form.nb_points(class='form-control' + (' is-invalid' if form.nb_points.errors else ''), style="width: auto;", size="3") }}
-                            {%- for error in form.nb_points.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                            {%- endfor %}
-                        {% else %}
-                            <input type="text" size="3" class="form-control" placeholder="..." value="{{ deal.nb_points }}" style="width: auto;" disabled readonly>
-                        {% endif %}
-                    </div>
-                    <div class="px-1">
-                        <label class="col-form-label">
-                            point{% if deal.nb_points > 1 %}s{% endif %}
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <div class="p-2 ms-auto">
-                <div class="d-flex flex-column flex-wrap">
-                    {% if form %}
-                    {% for annonce in form.annonces.entries %}
-                    <div class="d-flex flex-row pb-1 justify-content-end flex-wrap">
-                        {% if loop.last %}
-                        <div class="px-1">
-                            <button class="btn text-primary border-primary" hx-post="{{ url_for('game.game_deal_add_annonce', game_id=game.id, deal_id=deal.id) }}" type="button">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="px-1">
-                            <button class="btn border-danger text-danger" hx-post="{{ url_for('game.game_deal_remove_annonce', game_id=game.id, deal_id=deal.id) }}" type="button">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
-                                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
-                                </svg>
-                            </button>
-                        </div>
-                        {% endif %}
-                        <div class="px-1">
-                            {{ annonce.player(class='form-select' + (' is-invalid' if annonce.player.errors else '')) }}
-                            {% for error in annonce.player.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                        <div class="px-1">
-                            {{ annonce.annonce(class='form-select' + (' is-invalid' if annonce.annonce.errors else '')) }}
-                            {%- for error in annonce.annonce.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
-                            {%- endfor %}
-                        </div>
-                    </div>
-                    {% endfor %}
-                    {% if form.annonces.entries|length == 0 %}
-                    <button class="btn text-primary border-primary" hx-post="{{ url_for('game.game_deal_add_annonce', game_id=game.id, deal_id=deal.id) }}" type="button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
-                        </svg>
-                        Annonce
-                    </button>
-                    {% endif %}
-                    {% else %}
-                    {% for annonce in annonces %}
-                    <div class="d-flex flex-row pb-1 flex-wrap">
-                        <div class="px-1">
-                            <select class="form-select" style="--bs-form-select-bg-img: none" disabled>
-                                <option>{% if annonce.player %}{{ annonce.player.username }}{% else %}...{% endif %}</option>
-                                {% for player in players %}
-                                <option>{{ player.username }}</option>
+                        {% for annonce in form.annonces.entries %}
+                        <div class="d-flex flex-row flex-wrap column-gap-2">
+                            <div>
+                                {{ annonce.player(class='form-select' + (' is-invalid' if annonce.player.errors else '')) }}
+                                {% for error in annonce.player.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
                                 {% endfor %}
-                            </select>
+                            </div>
+                            <div>
+                                {{ annonce.annonce(class='form-select' + (' is-invalid' if annonce.annonce.errors else '')) }}
+                                {%- for error in annonce.annonce.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {%- endfor %}
+                            </div>
+                            {% if loop.last %}
+                            <div>
+                                <button class="btn text-primary border-primary" hx-post="{{ url_for('game.game_deal_add_annonce', game_id=game.id, deal_id=deal.id) }}" type="button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div>
+                                <button class="btn border-danger text-danger" hx-post="{{ url_for('game.game_deal_remove_annonce', game_id=game.id, deal_id=deal.id) }}" type="button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            {% endif %}
                         </div>
-                        <div class="px-1">
-                            <select class="form-select" style="--bs-form-select-bg-img: none" disabled>
-                                <option>{% if annonce.valeur != None %}{{ annonces_label[annonce.valeur] }}{% else %}...{% endif %}</option>
-                                <option>s'est fait prendre le petit au bout</option>
-                            </select>
-                        </div>
+                        {% endfor %}
+                        {% if form.annonces.entries|length == 0 %}
+                        <button class="btn text-primary border-primary" hx-post="{{ url_for('game.game_deal_add_annonce', game_id=game.id, deal_id=deal.id) }}" type="button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                            </svg>
+                            Annonce
+                        </button>
+                        {% endif %}
+                        {% else %}
+                        {% for annonce in annonces %}
+                            <div class="d-flex flex-row flex-wrap">
+                                <div class="px-1">
+                                    <select class="form-select" style="--bs-form-select-bg-img: none" disabled>
+                                        <option>{% if annonce.player %}{{ annonce.player.username }}{% else %}...{% endif %}</option>
+                                        {% for player in players %}
+                                        <option>{{ player.username }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="px-1">
+                                    <select class="form-select" style="--bs-form-select-bg-img: none" disabled>
+                                        <option>{% if annonce.valeur != None %}{{ annonces_label[annonce.valeur] }}{% else %}...{% endif %}</option>
+                                        <option>s'est fait prendre le petit au bout</option>
+                                    </select>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% endif %}
                     </div>
-                    {% endfor %}
-                    {% endif %}
                 </div>
             </div>
         </div>

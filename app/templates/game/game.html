@@ -3,11 +3,11 @@
 {% import "game/game_graphics.html" as gg %}
 
 {% block content %}
-    <div class="d-flex align-items-center column-gap-3 row-gap-3 flex-wrap flex-column">
-        <div class="card">
-            <div class="card-body d-flex flex-row align-items-center column-gap-3">
+    <div style="position: relative;margin: 0 auto;width: 60%;">
+        <div class="card" style="position: absolute;top: 0;right: 110%;">
+            <div class="card-body d-flex flex-column align-items-center column-gap-3">
                 <h1>{{ game.game_name }}</h1>
-                <ul class="nav nav-pills flex-row" id="myTab" role="tablist">
+                <ul class="nav nav-pills justify-content-center" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="players-tab" data-bs-toggle="tab" data-bs-target="#players-tab-pane" type="button" role="tab" aria-controls="players-tab-pane" aria-selected="true">Joueurs & Options</button>
                     </li>
@@ -15,19 +15,19 @@
                         <button class="nav-link" id="points-tab" data-bs-toggle="tab" data-bs-target="#points-tab-pane" type="button" role="tab" aria-controls="points-tab-pane" aria-selected="false">Points</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="stats-tab" data-bs-toggle="modal" data-bs-target="#stats-tab-modal" type="button" role="tab" aria-controls="stats-tab-modal" aria-selected="false" hx-get="{{ url_for('game.game_get_graphics', game_id=game.id) }}" hx-trigger="click" hx-target="#htmx-graphics" hx-swap="outerHTML">Statistiques</button>
+                        <button class="nav-link" id="stats-tab" onclick="twPleinEcran(document.getElementById('stats-tab-pane'));" data-bs-toggle="tab" data-bs-target="#stats-tab-pane" type="button" role="tab" aria-controls="stats-tab-pane" aria-selected="false" hx-get="{{ url_for('game.game_get_graphics', game_id=game.id) }}" hx-trigger="click" hx-target="#htmx-graphics" hx-swap="outerHTML">Statistiques</button>
                     </li>
                 </ul>    
             </div>
         </div>
-        <div class="tab-content d-flex justify-content-center flex-column" id="myTabContent">
+        <div class="tab-content d-flex flex-column" id="myTabContent">
             <div class="tab-pane fade show active" id="players-tab-pane" role="tabpanel" aria-labelledby="players-tab">
-                <div class="d-flex flex-column justify-content-center align-items-center row-gap-5">
-                    <div class="d-flex justify-content-center align-items-center flex-column row-gap-1">
+                <div class="d-flex flex-column row-gap-3">
+                    <div class="d-flex flex-column row-gap-2">
                         <h4>Joueurs</h4>
                         {{ jm.game_edit_players(game, players) }}
                     </div>
-                    <div class="d-flex justify-content-center align-items-center flex-column row-gap-1">
+                    <div class="d-flex flex-column row-gap-2 align-items-start">
                         <h4>Options</h4>
                         <button class="btn border-danger text-danger" type="button" data-bs-toggle="modal" data-bs-target="#confirm-delete-modal">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
@@ -40,7 +40,7 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="points-tab-pane" role="tabpanel" aria-labelledby="points-tab">
-                <div class="d-flex flex-column justify-content-center align-items-center row-gap-3">
+                <div class="d-flex flex-column row-gap-3">
                     {% for deal in deals %}
                     {{ jm.game_edit_deal(game, deal, announcement=announcement, players=players, annonces=annonces[loop.index0], annonces_label=annonces_label) }}
                     {% endfor %}
@@ -53,6 +53,9 @@
                         </button>
                     </div>
                 </div>
+            </div>
+            <div class="tab-pane fade" id="stats-tab-pane" role="tabpanel" aria-labelledby="stats-tab" style="width: 100%;height: 100%;background-color: white;overflow: auto;">
+                {{ gg.graphic(line_chart_datasets, called_pie_chart_dataset, dealer_pie_chart_dataset, win_bar_chart_dataset, annonce_bar_chart_dataset) }}
             </div>
         </div>
     </div>
@@ -92,5 +95,89 @@
             </div>
         </div>
     </div>
-  
+{% endblock %}
+
+
+{% block javascript %}
+<script>
+
+    const pointsTab = document.getElementById("points-tab");
+
+    function twPleinEcran(_element) {
+        var monElement = _element||document.documentElement;
+        if (document.mozFullScreenEnabled) {
+            if (!document.mozFullScreenElement) {
+                monElement.mozRequestFullScreen();
+            } else {
+                document.mozCancelFullScreen();
+                bootstrap.Tab.getInstance(pointsTab).show()
+            }
+        }
+        if (document.fullscreenElement) {
+            if (!document.fullscreenElement) {
+                monElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+                bootstrap.Tab.getInstance(pointsTab).show()
+            }
+        }
+        if (document.webkitFullscreenEnabled) {
+            if (!document.webkitFullscreenElement) {
+                monElement.webkitRequestFullscreen();
+            } else {
+                document.webkitExitFullscreen();
+                bootstrap.Tab.getInstance(pointsTab).show()
+            }
+        }
+        if (document.msFullscreenEnabled) {
+            if (!document.msFullscreenElement) {
+                monElement.msRequestFullscreen();
+            } else {
+                document.msExitFullscreen();
+                bootstrap.Tab.getInstance(pointsTab).show()
+            }
+        }
+    }
+
+    const triggerTabList = document.querySelectorAll('#myTab button')
+    triggerTabList.forEach(triggerEl => {
+        const tabTrigger = new bootstrap.Tab(triggerEl)
+
+        triggerEl.addEventListener('click', event => {
+            event.preventDefault()
+            tabTrigger.show()
+        })
+    })
+
+    var monDiv = document.getElementById("stats-tab-pane");
+    const triggerEl = document.querySelector('#myTab button[data-bs-target="#points-tab-pane"]')
+    //bootstrap.Tab.getInstance(triggerEl).show() // Select tab by name
+
+    // Fonction à exécuter lorsque le mode plein écran est quitté
+    function onFullscreenExit() {
+        // Mettez ici le code que vous souhaitez exécuter lorsque le mode plein écran est quitté
+        // Récupérer l'élément avec l'ID "monDiv"
+
+        // Vérifier si l'élément a la classe "active"
+        if (monDiv.classList.contains("active")) {
+            bootstrap.Tab.getInstance(triggerEl).show();
+        }
+
+    }
+
+    // Écouter l'événement fullscreenchange pour détecter les changements de mode plein écran
+    document.addEventListener("fullscreenchange", function () {
+        // Vérifier si le document n'est plus en mode plein écran
+        if (!document.fullscreenElement) {
+            // Si le mode plein écran est quitté, appeler la fonction onFullscreenExit()
+            onFullscreenExit();
+        }
+    });
+
+    // Écouter l'événement fullscreenerror pour gérer les erreurs éventuelles lors du passage en mode plein écran
+    document.addEventListener("fullscreenerror", function (event) {
+        console.error("Une erreur est survenue lors du passage en mode plein écran :", event);
+    });
+
+</script>
 {% endblock %}
