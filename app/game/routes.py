@@ -120,9 +120,9 @@ def game_edit_players(game_id):
         if olds != []:
             for deal in deals:
                 if deal.dealer in olds:
-                    deal.dealer = None #news[olds.index(deal.dealer)]
+                    deal.dealer = news[olds.index(deal.dealer)]
                 if deal.called in olds:
-                    deal.called = None #news[olds.index(deal.called)]
+                    deal.called = news[olds.index(deal.called)]
             for player in olds:
                 game.players.remove(player)
             for player in news:
