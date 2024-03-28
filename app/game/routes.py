@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from app.models import TarotGame, Player, Deal, Annonce
 from app.game.forms import EditDealForm, EditTarotGamePlayer, NewTarotGameForm
 from app.game.emoji import get_random_unique_emoji
-from app.game.tarot_func import get_line_chart_datasets, get_called_pie_chart_dataset, get_dealers_pie_chart_dataset, get_win_bar_chart_dataset, get_annonce_bar_chart_dataset
+from app.game.tarot_func import get_line_chart_datasets, get_called_pie_chart_dataset, get_dealers_pie_chart_dataset, get_win_bar_chart_dataset, get_annonce_bar_chart_dataset, get_attaque_opposition_bar_chart_dataset
 
 from app.game import bp
 
@@ -61,6 +61,7 @@ def game(game_id):
     dealer_pie_chart_dataset = get_dealers_pie_chart_dataset(deals, players)
     win_bar_chart_dataset = get_win_bar_chart_dataset(deals, players, annonces)
     annonce_bar_chart_dataset = get_annonce_bar_chart_dataset(deals, players, annonces)
+    attaque_opposition_bar_chart_dataset = get_attaque_opposition_bar_chart_dataset(deals, players)
     return render_template("game/game.html", game=g, 
                                         players=players, 
                                         deals=deals, 
@@ -71,7 +72,8 @@ def game(game_id):
                                         called_pie_chart_dataset=called_pie_chart_dataset, 
                                         dealer_pie_chart_dataset=dealer_pie_chart_dataset,
                                         win_bar_chart_dataset=win_bar_chart_dataset,
-                                        annonce_bar_chart_dataset=annonce_bar_chart_dataset)
+                                        annonce_bar_chart_dataset=annonce_bar_chart_dataset,
+                                        attaque_opposition_bar_chart_dataset=attaque_opposition_bar_chart_dataset)
 
 @bp.route('/game/<game_id>/get_edit_players')
 def game_get_edit_player(game_id):
@@ -307,7 +309,14 @@ def game_get_graphics(game_id):
     dealer_pie_chart_dataset = get_dealers_pie_chart_dataset(deals, players)
     win_bar_chart_dataset = get_win_bar_chart_dataset(deals, players, annonces)
     annonce_bar_chart_dataset = get_annonce_bar_chart_dataset(deals, players, annonces)
-    return render_template("game/game_get_graphics.html", line_chart_datasets=line_chart_datasets, called_pie_chart_dataset=called_pie_chart_dataset, dealer_pie_chart_dataset=dealer_pie_chart_dataset, win_bar_chart_dataset=win_bar_chart_dataset, annonce_bar_chart_dataset=annonce_bar_chart_dataset)
+    attaque_opposition_bar_chart_dataset = get_attaque_opposition_bar_chart_dataset(deals, players)
+    return render_template("game/game_get_graphics.html", 
+                            line_chart_datasets=line_chart_datasets, 
+                            called_pie_chart_dataset=called_pie_chart_dataset, 
+                            dealer_pie_chart_dataset=dealer_pie_chart_dataset, 
+                            win_bar_chart_dataset=win_bar_chart_dataset, 
+                            annonce_bar_chart_dataset=annonce_bar_chart_dataset,
+                            attaque_opposition_bar_chart_dataset=attaque_opposition_bar_chart_dataset)
 
 @bp.route('/game/<int:game_id>/delete')
 def game_delete(game_id: int):

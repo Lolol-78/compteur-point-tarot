@@ -1,4 +1,4 @@
-{% macro graphic(line_chart_datasets, called_pie_chart_dataset, dealer_pie_chart_dataset, win_bar_chart_dataset, annonce_bar_chart_dataset) %}
+{% macro graphic(line_chart_datasets, called_pie_chart_dataset, dealer_pie_chart_dataset, win_bar_chart_dataset, annonce_bar_chart_dataset, attaque_opposition_bar_chart_dataset) %}
 <div id="htmx-graphics" style="height: 100%;">
 
     <div id="carouselExample" class="carousel slide" style="height: 100%;">
@@ -29,6 +29,13 @@
                 <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
                     <div style="width: 70%;">
                         <canvas id="annonceBarChart" class="graphics"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item" style="height: 100%;">
+                <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
+                    <div style="width: 70%;">
+                        <canvas id="attOppBarChart" class="graphics"></canvas>
                     </div>
                 </div>
             </div>
@@ -304,7 +311,55 @@
                     }
                 }
             }
-        })
+        });
+
+        new Chart(document.getElementById("attOppBarChart"), {
+            type: "bar",
+            plugins: [ChartDataLabels],
+            data: {
+                labels: {{ attaque_opposition_bar_chart_dataset[1] | tojson }},
+                datasets: {{ attaque_opposition_bar_chart_dataset[0] | tojson }},
+            },
+            options: {
+                indexAxis: 'y',
+                animation: false,
+                interaction: false,
+                plugins: {
+                    datalabels: barChartDataLabels,
+                    legend: {
+                        title: {
+                            display: false,
+                        },
+                        labels: {
+                            font: {
+                                size: 25
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        ticks: {
+                            font: {
+                                size: 25,
+                            }
+                        }
+                    }
+                },
+                layout: {
+                    padding: {
+                        right: 30
+                    }
+                }
+            }
+        });
     </script>
 </div>
 {% endmacro %}

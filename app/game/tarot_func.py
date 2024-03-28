@@ -129,13 +129,13 @@ def get_win_bar_chart_dataset(deals: 'list[Deal]', players: 'list[Player]', anno
     datasets = [{
         "label": 'Victoire',
         "data": [item[1].count(1) for item in player_win_dict.items()],
-        "backgroundColor": "#008000",
+        "backgroundColor": "#00B050",
         "hoverOffset": 4
         }, 
         {
         "label": 'Défaite',
         "data": [item[1].count(-1) for item in player_win_dict.items()],
-        "backgroundColor": "#FFA500",
+        "backgroundColor": "#FF7400",
         "hoverOffset": 4
         }]
     labels = [item[0] for item in player_win_dict.items()]
@@ -173,6 +173,34 @@ def get_annonce_bar_chart_dataset(deals: 'list[Deal]', players: 'list[Player]', 
         "backgroundColor": "#FFC0CB",
     }]
     return datasets, labels
+
+def get_attaque_opposition_bar_chart_dataset(deals: 'list[Deal]', players: 'list[Player]'):
+    player_attaque_dict = {}
+    nb_deal = 0
+    for player in players:
+        player_attaque_dict[player.username] = 0
+    for deal in deals:
+        if deal.dealer == None or deal.announcement == 0 or deal.called == None:
+            break
+        if deal.dealer.username != deal.called.username:
+            player_attaque_dict[deal.called.username] += 1
+        player_attaque_dict[deal.dealer.username] += 1
+        nb_deal += 1
+    datasets = [{
+        "label": 'Attaque',
+        "data": [item[1] for item in player_attaque_dict.items()],
+        "backgroundColor": "#DB4437",
+        "hoverOffset": 4
+        },
+        {
+        "label": 'Opposition',
+        "data": [nb_deal - item[1] for item in player_attaque_dict.items()],
+        "backgroundColor": "#4285F4",
+        "hoverOffset": 4
+        }]
+    labels = [item[0] for item in player_attaque_dict.items()]
+    return datasets, labels
+    
 
 def get_player_by_name(players: 'list[Player]', username: str) -> Player:
     """
