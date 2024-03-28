@@ -1,29 +1,33 @@
 {% macro graphic(line_chart_datasets, called_pie_chart_dataset, dealer_pie_chart_dataset, win_bar_chart_dataset, annonce_bar_chart_dataset) %}
-<div id="htmx-graphics">
+<div id="htmx-graphics" style="height: 100%;">
 
-    <div id="carouselExample" class="carousel slide">
-        <div class="carousel-inner">
+    <div id="carouselExample" class="carousel slide" style="height: 100%;">
+        <div class="carousel-inner" style="height: 100%;">
             <div class="carousel-item active">
                 <div>
                     <canvas id="lineChart" class="graphics" style="height: max-content;"></canvas>
                 </div>
             </div>
-            <div class="carousel-item">
-                <div class="d-flex flex-row justify-content-center align-items-center p-2">
-                    <div style="width: 40%;" class="p-2">
+            <div class="carousel-item" style="height: 100%;">
+                <div class="d-flex flex-row justify-content-center align-items-center column-gap-3" style="height: 100%;">
+                    <div style="width: 40%;">
                         <canvas id="dealerPieChart" class="graphics"></canvas>
                     </div>
-                    <div style="width: 40%;" class="p-2">
+                    <div style="width: 40%;">
                         <canvas id="calledPieChart" class="graphics"></canvas>
                     </div>
                 </div>
             </div>
-            <div class="carousel-item">
-                <div class="d-flex flex-row justify-content-center p-2">
-                    <div class="p-2" style="width: 50%;">
+            <div class="carousel-item" style="height: 100%;">
+                <div class="d-flex justify-content-center align-items-center column-gap-3" style="height: 100%;">
+                    <div style="width: 70%;">
                         <canvas id="winBarChart" class="graphics"></canvas>
                     </div>
-                    <div class="p-2" style="width: 50%;">
+                </div>
+            </div>
+            <div class="carousel-item" style="height: 100%;">
+                <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
+                    <div style="width: 70%;">
                         <canvas id="annonceBarChart" class="graphics"></canvas>
                     </div>
                 </div>
@@ -240,6 +244,11 @@
                                 size: 25,
                             }
                         }
+                    }
+                },
+                layout: {
+                    padding: {
+                        right: 30
                     }
                 }
             }
