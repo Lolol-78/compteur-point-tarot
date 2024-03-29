@@ -1,11 +1,10 @@
 {% extends "base.html" %}
-{% import "bootstrap_wtf.html" as wtf %}
 
 {% block content %}
     <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
-        <div class="card">
+        <div class="card" style="width: 30%;">
             <div class="card-body">
-                <h2>Nouveau Joueur</h2>
+                <h2 class="mb-4">Nouveau Joueur</h2>
                 <form action="" method="post" novalidate>
                     {{ form.hidden_tag() }}
                     <div class="row g-3">
@@ -27,7 +26,7 @@
                             <label for="exampleColorInput" class="form-label">Couleur</label>
                             <input type="color" class="form-control form-control-color" id="exampleColorInput" value="#563d7c" name="color">
                         </div>
-                        <div class="col-12">
+                        <div class="col-12 mt-5">
                             {{ form.submit(class="btn btn-primary", style="width: 100%;") }}
                         </div>
                     </div>

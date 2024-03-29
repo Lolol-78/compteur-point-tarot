@@ -2,13 +2,12 @@
 
 {% block content %}
 <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
-    <div class="card" style="width: 45%;">
+    <div class="card" style="width: 40%;">
         <div class="card-body">
-            <h2>Nouvelle partie</h2>
-            <br>
+            <h2 class="mb-4">Nouvelle partie</h2>
             <form action="" method="post" novalidate>
                 {{ form.hidden_tag() }}
-                <div class="d-flex flex-column row-gap-4">
+                <div class="row g-3">
                     {{ player_entry(form.player_1) }}
                     
                     {{ player_entry(form.player_2) }}
@@ -18,10 +17,11 @@
                     {{ player_entry(form.player_4) }}
                     
                     {{ player_entry(form.player_5) }}
-                    
-                    <div class="d-flex flex-row-reverse column-gap-3">
-                        {{ form.submit(class='btn btn-primary px-4') }}
-                        <a href="{{ url_for('main.players') }}" class="btn border-secondary text-secondary px-3">Annuler</a>
+                    <div class="col-md-6 mt-5">
+                        <a href="{{ url_for('main.players') }}" class="btn border-secondary text-secondary" style="width: 100%;">Annuler</a>
+                    </div>
+                    <div class="col-md-6 mt-5">
+                        {{ form.submit(class='btn btn-primary', style="width: 100%;") }}
                     </div>
                 </div>
             </form>
@@ -31,19 +31,15 @@
 {% endblock %}
 
 {% macro player_entry(player) %}
-    <div class="row g-3 align-items-center">
-        <div class="col-auto">
-            {{ player.label(class='form-label', style="margin:auto;") }} :
-        </div>
-        <div class="col-auto">
-            {{ player(class='form-select' + (' is-invalid' if player.errors else ''), style='width: auto;') }}
-        </div>
-        <div class="col-auto">
-            {% for error in player.errors %}
-            <div style="color: #DC3545;">
-                {{ error }}
-            </div>
-            {% endfor %}
-        </div>
+<div class="col-12">
+    {{ player.label(class='form-label') }} :
+        
+    {{ player(class='form-select' + (' is-invalid' if player.errors else '')) }}
+    {% for error in player.errors %}
+    <div class="invalid-feedback">
+        {{ error }}
     </div>
+    {% endfor %}
+    
+</div>
 {% endmacro %}
