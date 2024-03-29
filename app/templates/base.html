@@ -42,21 +42,18 @@
             </div>
         </nav>
         <div class="container mt-3">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div>
-                    {% for message in messages %}
-                    <div class="alert alert-info">
-                        {{ message }}
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div>
+                        {% for message in messages %}
+                        <div class="alert alert-info">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
-        </div>
-        <div class="container-fluid">
-            {% block graphic %}{% endblock %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
         </div>
         
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

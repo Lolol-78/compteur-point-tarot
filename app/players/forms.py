@@ -24,7 +24,7 @@ class NewPlayerForm(FlaskForm):
     
     def validate_gender(self, gender):
         if gender.data == "-1":
-            raise ValidationError("Un genre est necessaire pour les accords grammaticaux")
+            raise ValidationError("Necessaire pour la grammaire")
         if not gender.data in {"0", "1"}:
             raise ValidationError("Mais qu'est-ce que t'essayes de faire ?")
 

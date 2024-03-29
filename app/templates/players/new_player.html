@@ -2,15 +2,37 @@
 {% import "bootstrap_wtf.html" as wtf %}
 
 {% block content %}
-    <h1>Nouveau Joueur</h1>
-    <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        {{ wtf.form_field(form.username) }}
-        {{ wtf.form_field(form.gender) }}
-        <br>
-        <label for="exampleColorInput" class="form-label">Couleur</label>
-        <input type="color" class="form-control form-control-color" id="exampleColorInput" value="#563d7c" name="color">
-        <br>
-        {{ wtf.form_field(form.submit) }}
-    </form>
+    <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+        <div class="card">
+            <div class="card-body">
+                <h2>Nouveau Joueur</h2>
+                <form action="" method="post" novalidate>
+                    {{ form.hidden_tag() }}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            {{ form.username.label }}
+                            {{ form.username(class='form-control' + (' is-invalid' if form.username.errors else '')) }}
+                            {%- for error in form.username.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                            {%- endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.gender.label(class="form-label") }}
+                            {{ form.gender(class='form-select' + (' is-invalid' if form.gender.errors else ''), style="width: auto;") }}
+                            {%- for error in form.gender.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                            {%- endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="exampleColorInput" class="form-label">Couleur</label>
+                            <input type="color" class="form-control form-control-color" id="exampleColorInput" value="#563d7c" name="color">
+                        </div>
+                        <div class="col-12">
+                            {{ form.submit(class="btn btn-primary", style="width: 100%;") }}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}
